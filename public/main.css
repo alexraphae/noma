@@ -27,7 +27,11 @@ body, button, input, label, select, td, textarea {
     font-size: 12px;
 }
 
-
+header {
+	height: 83px;
+	background: #3b5998;
+	border-bottom: 1px solid #133783;
+}
 
 header .logoImg a {
 	float: left;
@@ -41,7 +45,10 @@ header .logoImg a #logo {
 	height: 34px;
 }
 
-
+header .navbar {
+	height: 82px;
+	display: table;
+}
 
 header .logoImg {
 	display: table-cell;
@@ -234,5 +241,3 @@ footer #copyright {
 	}
 
  }
-
- 
